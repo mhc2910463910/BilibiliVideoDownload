@@ -41,51 +41,41 @@ class bilibili:
         # self.web=Chrome(service =service,options=opt) #无头模式
         self.web=Chrome(service =service)
         # 调用谷歌浏览器
-        self.web.get("https://www.bilibili.com/")
-        # 打开主页
-        self.web.find_element(By.XPATH,'//*[@id="nav-searchform"]/div[1]/input').send_keys(self.mytext,Keys.ENTER)
-        # 定位搜索框
-        time.sleep(2)
-        # 延时，等待加载网页
-        self.web.switch_to.window(self.web.window_handles[-1])
-        # 切换窗口到搜索结果页面
-        return 1
+        self.web.get(f"https://search.bilibili.com/video?keyword={self.mytext}")
+        # # 打开主页
+        # self.web.find_element(By.XPATH,'//*[@id="nav-searchform"]/div[1]/input').send_keys(self.mytext,Keys.ENTER)
+        # # 定位搜索框
+        # time.sleep(2)
+        # # 延时，等待加载网页
+        # self.web.switch_to.window(self.web.window_handles[-1])
+        # # 切换窗口到搜索结果页面
+        return
     def getUrl(self,i):
             # 获取第i个搜索结果
             self.res={}
-            for j in range(1,7):
+            try:
                 try:
-                    try:
-                        page = self.web.find_element(By.XPATH,f'//*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div/div[2]/div/div[{j}]/div/div[2]/a')
-                        #                                             //*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div/div[2]/div/div[1]/div/div[2]/a
-                        #                                             //*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div/div[2]/div/div[2]/div/div[2]/a
-                        page_name = self.web.find_element(By.XPATH,f'//*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div/div[2]/div/div[{j}]/div/div[2]/div/div/a/h3').text
-                        #                                                  //*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div/div[2]/div/div[1]/div/div[2]/div/div/a/h3
-                        #                                                  //*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div/div[2]/div/div[2]/div/div[2]/div/div/a/h3
-                        page_url = self.web.find_element(By.XPATH,f'//*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div/div[2]/div/div[{j}]/div/div[2]/a')
+                    page_author = self.web.find_element(By.XPATH,f'//*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div[1]/div[{i}]/div/div[2]/div/div/div/a/span[1]')
+                    page_name = self.web.find_element(By.XPATH,f'//*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div[1]/div[{i}]/div/div[2]/div/div/a/h3').text
+                    page_url = self.web.find_element(By.XPATH,f'//*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div[1]/div[{i}]/div/div[2]/div/div/a')
                     # 搜索结果第一页html代码解析
-                    except Exception as e:
+                except Exception as e:
                         print(f"{e}")
-                        # page = self.web.find_element(By.XPATH,f'//*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div[{j}]/div[{i}]/div/div[2]/div/div/a/h3')
-                        # page_name = self.web.find_element(By.XPATH,f'//*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div[{j}]/div[{i}]/div/div[2]/div/div/p/a/span[1]').text
-                        # page_url = self.web.find_element(By.XPATH,f'//*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div[{j}]/div[{i}]/div/div[2]/div/div/a')
-                    # 搜索结果第一页之后的html代码解析
-                    self.res = {
-                        "简介": page.text,
-                        "作者": page_name,
+                self.res = {
+                        "简介": page_name.text,
+                        "作者": page_author.text,
                         "地址": page_url.get_attribute('href'),
                     }
-                    # 搜索内容存储在字典中
-                    print(f"第{i}个结果:")
-                    print(page.text + " " + page_name)
-                    print(page_url.get_attribute('href'))
-                    flag=j
-                except Exception as e:
-                    print(f"获取失败{e}")
-                finally:
-                    sys.stdout.flush()
+                # 搜索内容存储在字典中
+                print(f"第{i}个结果:")
+                print(page.text + " " + page_name)
+                print(page_url.get_attribute('href'))
+            except Exception as e:
+                print(f"获取失败{e}")
+            finally:
+                sys.stdout.flush()
                     # 强制刷新缓存区,打印结果
-                    time.sleep(1)
+                time.sleep(1)
     def getPage(self,i):
         # 翻页
         self.web.get(f"https://search.bilibili.com/all?keyword={self.mytext}&from_source=webtop_search&spm_id_from=333.1007&search_source=5&page={i}&o={30 * i}")
