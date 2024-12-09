@@ -9,6 +9,4 @@
 
 ### 截图
 
-![](images/截图_选择区域_20241209231632.jpg)
-
-### 
+![](https://github.com/mhc2910463910/BilibiliVideoDownload/blob/main/images/%E6%88%AA%E5%9B%BE_%E9%80%89%E6%8B%A9%E5%8C%BA%E5%9F%9F_20241209231632.jpg)
