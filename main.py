@@ -1,7 +1,10 @@
 import sys
 import webbrowser
 import threading
+from email.quoprimime import header_decode
 from functools import partial
+from pprint import pprint
+from sys import stdout
 from tkinter import END
 import requests
 import bs4
@@ -22,11 +25,11 @@ import re
 import bs4
 import os
 import webbrowser
-# import ffmpeg
 import pyperclip
+import subprocess
 class bilibili:
     def __init__(self,mytext):
-        print("开始")
+        # print("开始")
         self.mytext=mytext
         # 搜索内容
         self.res={}
@@ -38,6 +41,7 @@ class bilibili:
         opt.add_argument("user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36")
         # opt.binary_location="/opt/apps/cn.google.chrome/files/google/chrome/chrome"
         service=Service('/opt/apps/cn.google.chrome/files/google/chrome/chromedriver')
+		# 需要自定义配置
         self.web=Chrome(service =service,options=opt) #无头模式
         # self.web=Chrome(service =service)
         # 调用谷歌浏览器
@@ -182,6 +186,7 @@ class Tkbilibili:
         self.inf = info()
         # 创建窗口2,显示搜索结果
         time.sleep(2)
+        # for i in range(1,25):
         for i in range(1,25):
             # b站网页版默认模式，一页显示24个内容，因此此处搜索为一页内容
             self.thread2=threading.Thread(group=None, target=self.bili.getUrl, args=(i,), daemon=None)
@@ -351,7 +356,6 @@ class info(Tkbilibili):
     def down(self,url):
         # res=requests.get(url)
         # print(res.text)
-        print(url)
         DownLoad(url)
     def display(self):
         self.root.mainloop()
@@ -359,18 +363,19 @@ class info(Tkbilibili):
 
 def DownLoad(url):
     print("""bilibili视频下载程序""")
-    # print("请输入视频地址:")
-    urllink=url
-    # urllink=pyperclip.paste()
-    url=urllink
-    res=requests.get(url)
-    # print(res.text)
-    text=bs4.BeautifulSoup(res.text,'html.parser')
-    text_name=text.find('title').text
-    print(text_name)
+    print(f"下载{url}")
+    headers = {
+        "User-Agent" : "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"
+    }
+    # 伪造浏览器请求头
+    res=requests.get(url,headers=headers)
+    res.encoding = res.apparent_encoding
+    # 自动选择合适的编码方式
+    name=bs4.BeautifulSoup(res.text,'html.parser')
+    text_name=name.find('title').text
     if " " in text_name:
         text_name=text_name.replace(" ","-")
-    # print(text_name)
+    print(text_name)
     obj=re.compile('"codecid":7},{"id":32,"baseUrl":"(?P<info>.*?)","base_url":".*?',re.S)
     page=obj.finditer(res.text)
     for li in page:
@@ -397,16 +402,36 @@ def DownLoad(url):
             pass
         with open(f"{text_name}//vudio.mp4",'wb') as fie:
             fie.write(vudio)
-        with open(f"{text_name}//audio.mp4",'wb') as fie:
+        with open(f"{text_name}//audio.mp3",'wb') as fie:
             fie.write(music)
         # print(os.listdir(f"{text_name}"))
         file1=f"{text_name}//vudio.mp4"
-        file2=f"{text_name}//audio.mp4"
+        file2=f"{text_name}//audio.mp3"
         result=f"{text_name}//output.mp4"
         print("下载中...")
-        os.system(f"ffmpeg.exe -i {file1} -i {file2} -c:v copy -c:a copy {result}")
-        time.sleep(5)
-        print("下载完成...")
+        # os.system(f"ffmpeg.exe -i {file1} -i {file2} -c:v copy -c:a copy {result}")
+        process = subprocess.Popen(
+            [
+                'ffmpeg',
+                '-y',
+                '-i', file1,
+                '-i', file2,
+                '-c:v', 'copy',
+                '-c:a', 'copy',
+                '-strict', 'experimental',
+                '-shortest',
+                result
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        stdout, stderr = process.communicate()
+        if process.returncode:
+            print(f"视频合成失败: {stderr}")
+        else:
+            print("视频合成成功")
+        time.sleep(2)
 try:
     bili=Tkbilibili("bilibili视频播放下载器")
     bili.display()
