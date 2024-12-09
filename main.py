@@ -38,8 +38,8 @@ class bilibili:
         opt.add_argument("user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36")
         # opt.binary_location="/opt/apps/cn.google.chrome/files/google/chrome/chrome"
         service=Service('/opt/apps/cn.google.chrome/files/google/chrome/chromedriver')
-        # self.web=Chrome(service =service,options=opt) #无头模式
-        self.web=Chrome(service =service)
+        self.web=Chrome(service =service,options=opt) #无头模式
+        # self.web=Chrome(service =service)
         # 调用谷歌浏览器
         self.web.get(f"https://search.bilibili.com/video?keyword={self.mytext}")
         # # 打开主页
@@ -54,13 +54,10 @@ class bilibili:
             # 获取第i个搜索结果
             self.res={}
             try:
-                try:
-                    page_author = self.web.find_element(By.XPATH,f'//*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div[1]/div[{i}]/div/div[2]/div/div/div/a/span[1]')
-                    page_name = self.web.find_element(By.XPATH,f'//*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div[1]/div[{i}]/div/div[2]/div/div/a/h3').text
-                    page_url = self.web.find_element(By.XPATH,f'//*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div[1]/div[{i}]/div/div[2]/div/div/a')
-                    # 搜索结果第一页html代码解析
-                except Exception as e:
-                        print(f"{e}")
+                page_author = self.web.find_element(By.XPATH,f'//*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div[1]/div[{i}]/div/div[2]/div/div/div/a/span[1]')
+                page_name = self.web.find_element(By.XPATH,f'//*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div[1]/div[{i}]/div/div[2]/div/div/a/h3')
+                page_url = self.web.find_element(By.XPATH,f'//*[@id="i_cecream"]/div/div[2]/div[2]/div/div/div[1]/div[{i}]/div/div[2]/div/div/a')
+                # 搜索结果第一页html代码解析
                 self.res = {
                         "简介": page_name.text,
                         "作者": page_author.text,
@@ -71,7 +68,7 @@ class bilibili:
                 print(page.text + " " + page_name)
                 print(page_url.get_attribute('href'))
             except Exception as e:
-                print(f"获取失败{e}")
+                print(f"{e}")
             finally:
                 sys.stdout.flush()
                     # 强制刷新缓存区,打印结果
@@ -185,8 +182,8 @@ class Tkbilibili:
         self.inf = info()
         # 创建窗口2,显示搜索结果
         time.sleep(2)
-        for i in range(1,31):
-            # b站网页版全屏模式，一页显示30个内容，因此此处搜索为一页内容
+        for i in range(1,25):
+            # b站网页版默认模式，一页显示24个内容，因此此处搜索为一页内容
             self.thread2=threading.Thread(group=None, target=self.bili.getUrl, args=(i,), daemon=None)
             self.thread2.start()
             # 线程2开始搜索数据
